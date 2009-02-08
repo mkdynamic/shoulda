@@ -128,6 +128,33 @@ class AssociationMatcherTest < Test::Unit::TestCase # :nodoc:
       end
       assert_accepts @matcher, Parent.new
     end
+  
+    should "accept an association with a valid :as option" do
+      define_model :child, :guardian_type => :string,
+                                :guardian_id   => :integer
+      define_model :parent do
+        has_many :children, :as => :guardian
+      end
+      assert_accepts @matcher.as(:guardian), Parent.new
+    end
+    
+    should "reject an association with an invalid (blank) :as option" do
+      define_model :child, :guardian_type => :string,
+                                :guardian_id   => :integer
+      define_model :parent do
+        has_many :children
+      end
+      assert_rejects @matcher.as(:guardian), Parent.new
+    end
+    
+    should "reject an association with an invalid :as option" do
+      define_model :child, :guardian_type => :string,
+                                :guardian_id   => :integer
+      define_model :parent do
+        has_many :children, :as => :guardian
+      end
+      assert_rejects @matcher.as(:chairman), Parent.new
+    end
 
     should "reject an association that has a nonexistent foreign key" do
       define_model :child

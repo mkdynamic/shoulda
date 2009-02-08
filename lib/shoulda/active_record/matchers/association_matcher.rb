@@ -72,6 +72,11 @@ module Shoulda # :nodoc:
           @polymorphic = polymorphic
           self
         end
+        
+        def as(as)
+          @as = as
+          self
+        end
 
         def matches?(subject)
           @subject = subject
@@ -81,6 +86,7 @@ module Shoulda # :nodoc:
             through_association_valid? && 
             dependent_correct? &&
             polymorphic_correct? &&
+            as_correct? &&
             join_table_exists?
         end
 
@@ -170,6 +176,15 @@ module Shoulda # :nodoc:
             true
           else
             @missing = "#{@name} should #{@polymorphic ? 'be' : 'not be'} polymorphic"
+            false
+          end
+        end
+        
+        def as_correct?
+          if @as.nil? || @as.to_s == reflection.options[:as].to_s
+            true
+          else
+            @missing = "#{@name} should have :as option set to '#{@as}'"
             false
           end
         end

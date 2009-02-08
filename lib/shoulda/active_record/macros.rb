@@ -362,10 +362,10 @@ module Shoulda # :nodoc:
       #   should_have_many :enemies, :dependent => :destroy
       #
       def should_have_many(*associations)
-        through, dependent = get_options!(associations, :through, :dependent)
+        through, dependent, as = get_options!(associations, :through, :dependent, :as)
         klass = model_class
         associations.each do |association|
-          matcher = have_many(association).through(through).dependent(dependent)
+          matcher = have_many(association).through(through).dependent(dependent).as(as)
           should matcher.description do
             assert_accepts(matcher, klass.new)
           end
