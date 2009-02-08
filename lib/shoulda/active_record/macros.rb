@@ -415,10 +415,10 @@ module Shoulda # :nodoc:
       #   should_belong_to :parent
       #
       def should_belong_to(*associations)
-        dependent = get_options!(associations, :dependent)
+        dependent, polymorphic = get_options!(associations, :dependent, :polymorphic)
         klass = model_class
         associations.each do |association|
-          matcher = belong_to(association).dependent(dependent)
+          matcher = belong_to(association).dependent(dependent).polymorphic(polymorphic)
           should matcher.description do
             assert_accepts(matcher, klass.new)
           end

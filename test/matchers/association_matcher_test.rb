@@ -51,6 +51,30 @@ class AssociationMatcherTest < Test::Unit::TestCase # :nodoc:
       end
       assert_accepts @matcher, Child.new
     end
+    
+    should "accept an association with a true :polymorphic option" do
+      define_model :parent
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent, :polymorphic => true
+      end
+      assert_accepts @matcher.polymorphic(true), Child.new
+    end
+
+    should "reject an association with a false :polymorphic option" do
+      define_model :parent
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent, :polymorphic => false
+      end
+      assert_rejects @matcher.polymorphic(true), Child.new
+    end
+    
+    should "reject an association without a :polymorphic option" do
+      define_model :parent
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent
+      end
+      assert_rejects @matcher.polymorphic(true), Child.new
+    end
 
     should "accept an association with a valid :dependent option" do
       define_model :parent
@@ -67,6 +91,7 @@ class AssociationMatcherTest < Test::Unit::TestCase # :nodoc:
       end
       assert_rejects @matcher.dependent(:destroy), Child.new
     end
+  
   end
 
   context "have_many" do

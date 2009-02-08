@@ -11,7 +11,7 @@ module Shoulda # :nodoc:
       end
 
       # Ensures that the has_many relationship exists.  Will also test that the
-      # associated table has the required columns.  Works with polymorphic
+      # associated table has the required columns.  Works with dependentmorphic
       # associations.
       #
       # Options:
@@ -67,6 +67,11 @@ module Shoulda # :nodoc:
           @dependent = dependent
           self
         end
+        
+        def polymorphic(polymorphic)
+          @polymorphic = polymorphic
+          self
+        end
 
         def matches?(subject)
           @subject = subject
@@ -75,6 +80,7 @@ module Shoulda # :nodoc:
             foreign_key_exists? && 
             through_association_valid? && 
             dependent_correct? &&
+            polymorphic_correct? &&
             join_table_exists?
         end
 
@@ -155,6 +161,15 @@ module Shoulda # :nodoc:
             true
           else
             @missing = "#{@name} should have #{@dependent} dependency"
+            false
+          end
+        end
+        
+        def polymorphic_correct?
+          if @polymorphic.nil? || @polymorphic == reflection.options[:polymorphic]
+            true
+          else
+            @missing = "#{@name} should #{@polymorphic ? 'be' : 'not be'} polymorphic"
             false
           end
         end
