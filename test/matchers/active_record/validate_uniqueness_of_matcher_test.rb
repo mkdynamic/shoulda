@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+require File.join(File.dirname(__FILE__), '..', '..', 'test_helper')
 
 class ValidateUniquenessOfMatcherTest < Test::Unit::TestCase # :nodoc:
 
@@ -31,10 +31,16 @@ class ValidateUniquenessOfMatcherTest < Test::Unit::TestCase # :nodoc:
     context "without an existing value" do
       setup do
         assert_nil Example.find(:first)
+        @matcher = validate_uniqueness_of(:attr)
       end
 
       should "fail to require a unique value" do
-        assert_rejects validate_uniqueness_of(:attr), @model
+        assert_rejects @matcher, @model
+      end
+
+      should "alert the tester that an existing value is not present" do
+        @matcher.matches?(@model)
+        assert @matcher.negative_failure_message =~ /^Can't find first .*/
       end
     end
   end

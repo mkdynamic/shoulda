@@ -1,16 +1,14 @@
 require 'shoulda'
-require 'shoulda/controller/helpers'
-require 'shoulda/controller/resource_options'
-require 'shoulda/controller/macros'
+require 'shoulda/action_controller/helpers'
+require 'shoulda/action_controller/matchers'
+require 'shoulda/action_controller/macros'
 
 module Test # :nodoc: all
   module Unit
     class TestCase
-      extend Shoulda::Controller::Macros
-      include Shoulda::Controller::Helpers
-      Shoulda::Controller::VALID_FORMATS.each do |format|
-        include "Shoulda::Controller::#{format.to_s.upcase}".constantize
-      end
+      include Shoulda::ActionController::Matchers
+      include Shoulda::ActionController::Helpers
+      extend Shoulda::ActionController::Macros
     end
   end
 end
