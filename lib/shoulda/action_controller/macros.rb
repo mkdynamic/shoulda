@@ -23,7 +23,7 @@ module Shoulda # :nodoc:
     # Would produce 5 tests for the +show+ action
     module Macros
       include Matchers
-
+      
       # Macro that creates a test asserting that the flash contains the given value.
       # val can be a String, a Regex, or nil (indicating that the flash should not be set)
       #

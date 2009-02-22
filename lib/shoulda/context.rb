@@ -181,7 +181,8 @@ module Shoulda
     attr_accessor :teardown_blocks    # blocks given via teardown methods
     attr_accessor :shoulds            # array of hashes representing the should statements
     attr_accessor :should_eventuallys # array of hashes representing the should eventually statements
-
+    attr_accessor :request_block      # if we have refined a request block
+    
     def initialize(name, parent, &blk)
       Shoulda.add_context(self)
       self.name               = name
@@ -191,6 +192,7 @@ module Shoulda
       self.shoulds            = []
       self.should_eventuallys = []
       self.subcontexts        = []
+      self.request_block      = nil
 
       merge_block(&blk)
       Shoulda.remove_context
@@ -207,6 +209,10 @@ module Shoulda
     def setup(&blk)
       self.setup_blocks << blk
     end
+    
+    def req(&blk)
+      self.request_block = blk # run immediately before the test
+    end
 
     def teardown(&blk)
       self.teardown_blocks << blk
@@ -214,7 +220,7 @@ module Shoulda
 
     def should(name, options = {}, &blk)
       if block_given?
-        self.shoulds << { :name => name, :before => options[:before], :block => blk }
+        self.shoulds << { :name => name, :before => options[:before], :do_request => !!options[:do_request], :block => blk }
       else
        self.should_eventuallys << { :name => name }
      end
@@ -250,6 +256,7 @@ module Shoulda
           context.run_parent_setup_blocks(self)
           should[:before].bind(self).call if should[:before]
           context.run_current_setup_blocks(self)
+          context.run_request_block(self)
           should[:block].bind(self).call
         ensure
           context.run_all_teardown_blocks(self)
@@ -269,6 +276,14 @@ module Shoulda
     def run_current_setup_blocks(binding)
       setup_blocks.each do |setup_block|
         setup_block.bind(binding).call
+      end
+    end
+    
+    def run_request_block(binding)
+      if request_block.nil?
+        self.parent.run_request_block(binding) if am_subcontext?
+      else
+        request_block.bind(binding).call
       end
     end
 
