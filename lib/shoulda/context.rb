@@ -67,7 +67,8 @@ module Shoulda
         end
         context.build
       end
-    end
+    end    
+    %w{specify it}.each { |m| alias_method m, :should }
 
     # == Before statements
     #
@@ -170,6 +171,7 @@ module Shoulda
         context.build
       end
     end
+    %w{with where describe describing feature given attribute method}.each { |m| alias_method m, :context }
   end
 
   class Context # :nodoc:
@@ -204,8 +206,12 @@ module Shoulda
 
     def context(name, &blk)
       self.subcontexts << Context.new(name, self, &blk)
+    end    
+    
+    def brackets(name, &blk)
+      self.context("(#{name})", self, &blk)
     end
-
+    
     def setup(&blk)
       self.setup_blocks << blk
     end
@@ -213,7 +219,7 @@ module Shoulda
     def action(&blk)
       self.action_block = blk
     end
-    %w{req request immediately_before}.each { |m| alias_method m, :action }
+    %w{req request immediately_before peforming doing running}.each { |m| alias_method m, :action }
 
     def teardown(&blk)
       self.teardown_blocks << blk
@@ -226,7 +232,7 @@ module Shoulda
        self.should_eventuallys << { :name => name }
      end
     end
-
+    
     def should_eventually(name, &blk)
       self.should_eventuallys << { :name => name, :block => blk }
     end
@@ -254,9 +260,9 @@ module Shoulda
       context = self
       test_unit_class.send(:define_method, test_name) do
         begin
-          context.run_parent_setup_blocks(self)
-          should[:before].bind(self).call if should[:before]
+          context.run_parent_setup_blocks(self)          
           context.run_current_setup_blocks(self)
+          should[:before].bind(self).call if should[:before]
           context.run_action_block(self)
           should[:block].bind(self).call
         ensure
