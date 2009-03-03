@@ -181,7 +181,7 @@ module Shoulda
     attr_accessor :teardown_blocks    # blocks given via teardown methods
     attr_accessor :shoulds            # array of hashes representing the should statements
     attr_accessor :should_eventuallys # array of hashes representing the should eventually statements
-    attr_accessor :request_block      # if we have refined a request block
+    attr_accessor :action_block       # block run *immediately* before the test
     
     def initialize(name, parent, &blk)
       Shoulda.add_context(self)
@@ -192,7 +192,7 @@ module Shoulda
       self.shoulds            = []
       self.should_eventuallys = []
       self.subcontexts        = []
-      self.request_block      = nil
+      self.action_block       = nil
 
       merge_block(&blk)
       Shoulda.remove_context
@@ -210,9 +210,10 @@ module Shoulda
       self.setup_blocks << blk
     end
     
-    def req(&blk)
-      self.request_block = blk # run immediately before the test
+    def action(&blk)
+      self.action_block = blk
     end
+    %w{req request immediately_before}.each { |m| alias_method m, :action }
 
     def teardown(&blk)
       self.teardown_blocks << blk
@@ -256,7 +257,7 @@ module Shoulda
           context.run_parent_setup_blocks(self)
           should[:before].bind(self).call if should[:before]
           context.run_current_setup_blocks(self)
-          context.run_request_block(self)
+          context.run_action_block(self)
           should[:block].bind(self).call
         ensure
           context.run_all_teardown_blocks(self)
@@ -279,11 +280,12 @@ module Shoulda
       end
     end
     
-    def run_request_block(binding)
-      if request_block.nil?
-        self.parent.run_request_block(binding) if am_subcontext?
+    # runs most locally defined action block only
+    def run_action_block(binding)
+      if action_block.nil?
+        self.parent.run_action_block(binding) if am_subcontext?
       else
-        request_block.bind(binding).call
+        action_block.bind(binding).call
       end
     end
 
