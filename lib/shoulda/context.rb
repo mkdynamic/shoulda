@@ -193,7 +193,7 @@ module Shoulda
       self.should_eventuallys = []
       self.subcontexts        = []
       self.action_block       = nil
-
+      
       merge_block(&blk)
       Shoulda.remove_context
     end
@@ -221,7 +221,7 @@ module Shoulda
 
     def should(name, options = {}, &blk)
       if block_given?
-        self.shoulds << { :name => name, :before => options[:before], :do_request => !!options[:do_request], :block => blk }
+        self.shoulds << { :name => name, :before => options[:before], :block => blk }
       else
        self.should_eventuallys << { :name => name }
      end
