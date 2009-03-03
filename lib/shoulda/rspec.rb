@@ -1,9 +1,11 @@
 require 'shoulda/active_record/matchers'
+require 'shoulda/action_controller/matchers'
+require 'active_support/test_case'
 
-module Spec # :nodoc:
-  module Rails # :nodoc:
-    module Matchers # :nodoc:
-      include Shoulda::ActiveRecord::Matchers
-    end
+# :enddoc:
+module ActiveSupport
+  class TestCase
+    include Shoulda::ActiveRecord::Matchers
+    include Shoulda::ActionController::Matchers
   end
 end

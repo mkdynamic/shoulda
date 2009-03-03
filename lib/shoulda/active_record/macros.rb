@@ -296,13 +296,16 @@ module Shoulda # :nodoc:
       #   should_ensure_value_in_range :age, (0..100)
       #
       def should_ensure_value_in_range(attribute, range, opts = {})
-        message = get_options!([opts], :message)
-        message ||= default_error_message(:inclusion)
-
+        message, low_message, high_message = get_options!([opts],
+                                                          :message,
+                                                          :low_message,
+                                                          :high_message)
         klass = model_class
         matcher = ensure_inclusion_of(attribute).
           in_range(range).
-          with_message(message)
+          with_message(message).
+          with_low_message(low_message).
+          with_high_message(high_message)
         should matcher.description do
           assert_accepts matcher, get_instance_of(klass)
         end
@@ -333,7 +336,7 @@ module Shoulda # :nodoc:
         end
       end
 
-      # Deprecated. See should_validate_uniqueness_of
+      # Deprecated. See should_validate_numericality_of
       def should_only_allow_numeric_values_for(*attributes)
         warn "[DEPRECATION] should_only_allow_numeric_values_for is " <<
              "deprecated. Use should_validate_numericality_of instead."
