@@ -263,7 +263,7 @@ module Shoulda
           context.run_parent_setup_blocks(self)          
           context.run_current_setup_blocks(self)
           should[:before].bind(self).call if should[:before]
-          context.run_action_block(self)
+          @return_value = context.run_action_block(self)
           should[:block].bind(self).call
         ensure
           context.run_all_teardown_blocks(self)
